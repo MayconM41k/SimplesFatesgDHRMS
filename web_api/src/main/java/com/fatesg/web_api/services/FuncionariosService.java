@@ -17,16 +17,9 @@ public class FuncionariosService {
     private ServidorDeDadosFuncionarioInterface servico;
 
     public FuncionariosService() {
-        try {
-            Registry registry = LocateRegistry.getRegistry(RmiConfig.RMI_HOST, RmiConfig.RMI_PORT);
-            this.servico = (ServidorDeDadosFuncionarioInterface) registry.lookup(RmiConfig.RMI_SERVICE_NAME);
-        } catch (RemoteException e) {
-            System.err.println("Erro na comunicação com o servidor no construtor de FuncionariosService:");
-            e.printStackTrace();
-        } catch (NotBoundException e) {
-            System.err.println("Serviço não encontrado no registry no construtor de FuncionariosService:");
-            e.printStackTrace();
-        }
+        var api = new com.fatesg.web_api.apis.ServidorDeDadosFuncionarioApi();
+        api.Conectar();
+        this.servico = api;
     }
 
     public List<FuncionarioDto> getFuncionarios(int limite, int offset) {
