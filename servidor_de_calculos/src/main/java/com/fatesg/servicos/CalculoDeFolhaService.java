@@ -27,7 +27,7 @@ public class CalculoDeFolhaService implements ServidorDeCalculoFolhaInterface {
             // do {
                 salarios = stub.listarSalarios(limit, offset);
                 for (SalarioDto salarioDto : salarios) {
-                    ReciboDto recibo = calcularReciboDePagamento(salarioDto.getIdFuncionario(), mes, ano, descontos);
+                    ReciboDto recibo = calcularReciboDePagamento(salarioDto, mes, ano, descontos);
                     folha.addRecibo(recibo);
                 }
                 offset++;
@@ -47,13 +47,26 @@ public class CalculoDeFolhaService implements ServidorDeCalculoFolhaInterface {
             SalarioDto salarioBrutoAnual = stub.obterSalarioPorId(idFuncionario);
             if (salarioBrutoAnual == null)
                 throw new Exception("Salario não encontrado para o ID:" + idFuncionario);
+            return calcularReciboDePagamento(salarioBrutoAnual, mesReferencia, anoReferencia, descontos);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private ReciboDto calcularReciboDePagamento(SalarioDto salarioBrutoAnual, byte mesReferencia, short anoReferencia,
+            HashMap<String, Double> descontos) {
+        try {
+            if (salarioBrutoAnual == null)
+                throw new Exception("Salario inválido");
 
             double salarioBruto = salarioBrutoAnual.getValor() / 12;
             var recibo = new ReciboDto(
                     mesReferencia,
                     anoReferencia,
-                    idFuncionario,
-                    new SalarioDto(idFuncionario, salarioBruto));
+                    salarioBrutoAnual.getIdFuncionario(),
+                    new SalarioDto(salarioBrutoAnual.getIdFuncionario(), salarioBruto));
 
             descontos.forEach((k, v) -> {
                 recibo.addDesconto(k, v);
